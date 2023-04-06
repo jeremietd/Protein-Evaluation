@@ -6,7 +6,7 @@ Calculation for various sequence- and structure-based quality scores for protein
 2. Single-sequence metrics
 3. Alignment-based metrics
 
-## Structure metrics
+## 1. Structure metrics
 The proteinMPNN and ESM-IF scores are the average log likelihood of the query residues.
 
 ### **ProteinMPNN**[^5]
@@ -21,14 +21,14 @@ The MIF-ST score is calculated using the extract_mif.py script from the Protein 
 ### **AlphaFold2 pLDDT**
 Average taken from the b-factors in AlphaFold2-produced pdb files.
 
-## Single-sequence metrics
+## 2. Single-sequence metrics
 ### **ESM-1v, ESM-1v mask6, CARP-640m[^7]**
 Scores calculated from the ESM-1v and CARP-640M models are the average of the log probabilities of the amino acid in each position. Without masking, this calculation can be done with a single forward pass over each sequence. With partial masking, it can be done in a number of passes equal to 1 / masked_fraction. At the most extreme each position could be masked one at a time. We found that masking in six passes, with the masked positions at a regular interval that shifts on every pass gave scores nearly equivalent to masking one position at a time. Furthermore, when no masking was applied, the scores were shifted towards zero but still strongly correlated with the masked scores. Therefore, we used ESM-1v and CARP-640M scores calculated in one pass without any masking.
 
 ### **Repeat 1, 2, 3, 4**
 Scores are calculated for the longest single amino acid repeat, the longest 2-mer, 3-mer, and 4-mer repeat in each sequence. The score is calculated as -1 * the number of repeat units. So the sequence MAAAAAAI has a single amino acid repeat score of -6, a 2-mer score of -3, a 3-mer score of -2, and a 4-mer score of -1.
 
-## Alignment-based metrics
+## 3. Alignment-based metrics
 ### **ESM-MSA**[^4]
 Calculated by using pHMMER to find the 31 closest training sequences to each query, aligning the 32 sequences with MAFFT, and calculating the average log probabilities from six passes with a masking interval of six.
 
@@ -38,7 +38,7 @@ The most similar training sequence was found using ggsearch36 from the FASTA3 pa
 ### **Substitution matrix (_BLOSUM62_[^1] or _PFASUM15_[^2]) score mean of mutated positions**
 The closest training sequence was found by FASTA3 ggsearch36. From the alignment to the closest training sequence, the mean BLOSUM62 score across all mismatched positions was calculated, ignoring positions where either query or reference had a gap.
 
-## References
+### References
 [^1]: Henikoff, S, and J G Henikoff. “Amino Acid Substitution Matrices from Protein Blocks.” Proceedings of the National Academy of Sciences of the United States of America 89, no. 22 (November 15, 1992): 10915–19.
 
 [^2]: Keul, Frank, Martin Hess, Michael Goesele, and Kay Hamacher. “PFASUM: A Substitution Matrix from Pfam Structural Alignments.” BMC Bioinformatics 18, no. 1 (June 5, 2017): 293. https://doi.org/10.1186/s12859-017-1703-z.
