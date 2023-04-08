@@ -3,9 +3,30 @@ device = 'cuda:0'
 from glob import glob
 from pgen.utils import parse_fasta
 import pandas as pd
+import os
 
 #Reset calculated metrics (creates a new datastructure to store results, clearing any existing results)
 results = dict()
+
+# Check that the required directories exist
+file_dir = os.path.dirname(os.path.realpath(__file__))
+pdb_dir = os.path.join(file_dir, "pdbs")
+reference_dir = os.path.join(file_dir, "reference_seqs")
+target_dir = os.path.join(file_dir, "target_seqs")
+
+os.makedirs(pdb_dir) if not os.path.exists(pdb_dir) else None
+os.makedirs(reference_dir) if not os.path.exists(reference_dir) else None
+os.makedirs(target_dir) if not os.path.exists(target_dir) else None
+
+# Check that the required files exist
+pdb_files = glob(pdb_dir + "/*.pdb")
+reference_files = glob(reference_dir + "/*.fasta")
+target_files = glob(target_dir + "/*.fasta")
+
+assert len(pdb_files) > 0, f"No pdb files found in {pdb_dir}"
+assert len(reference_files) > 0, f"No reference fasta files found in {reference_dir}"
+assert len(target_files) > 0, f"No target fasta files found in {target_dir}"
+
 
 # Structure metrics
 # ESM-IF, ProteinMPNN, MIF-ST, AlphaFold2 pLDDT
