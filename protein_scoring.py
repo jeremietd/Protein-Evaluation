@@ -83,5 +83,7 @@ ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
 
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")
-df.to_csv(f"/tmp/calculated_metrics.csv")
+save_path = "calculated_metrics.csv"
+df.to_csv(save_path)
+print(f"Results saved to {save_path}")
 
