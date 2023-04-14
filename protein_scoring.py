@@ -4,19 +4,45 @@ from glob import glob
 from pgen.utils import parse_fasta
 import pandas as pd
 import os
+import argparse
+
+from scoring_metrics import structure_metrics as st_metrics
+from scoring_metrics import single_sequence_metrics as ss_metrics
+from scoring_metrics import alignment_based_metrics as ab_metrics
 
 #Reset calculated metrics (creates a new datastructure to store results, clearing any existing results)
 results = dict()
 
-# Check that the required directories exist
+# Default directories
 file_dir = os.path.dirname(os.path.realpath(__file__))
-pdb_dir = os.path.join(file_dir, "pdbs")
-reference_dir = os.path.join(file_dir, "reference_seqs")
-target_dir = os.path.join(file_dir, "target_seqs")
+default_pdb_dir = os.path.join(file_dir, "pdbs")
+default_reference_dir = os.path.join(file_dir, "reference_seqs")
+default_target_dir = os.path.join(file_dir, "target_seqs")
 
-os.makedirs(pdb_dir) if not os.path.exists(pdb_dir) else None
-os.makedirs(reference_dir) if not os.path.exists(reference_dir) else None
-os.makedirs(target_dir) if not os.path.exists(target_dir) else None
+os.makedirs(default_pdb_dir) if not os.path.exists(default_pdb_dir) else None
+os.makedirs(default_reference_dir) if not os.path.exists(default_reference_dir) else None
+os.makedirs(default_target_dir) if not os.path.exists(default_target_dir) else None
+
+# Parse arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("--pdb_dir", type=str, default=default_pdb_dir, help="Directory containing pdb files")
+parser.add_argument("--reference_dir", type=str, default=default_reference_dir, help="Directory containing reference fasta files")
+parser.add_argument("--target_dir", type=str, default=default_target_dir, help="Directory containing target fasta files")
+parser.add_argument("--sub_matrix", type=str, choices=["blosum62", "pfasum15"], default="blosum62", help="Substitution matrix to use for alignment-based metrics")
+parser.add_argument("--score_mean", type=bool, action="store_false", help="Whether to score the mean of the scores for mutated sequences")
+parser.add_argument("--identity", type=bool, action="store_false", help="Whether to score the identity of the mutated sequence to the closest reference sequence")
+parser.add_argument("--sub_gap_open", type=int, default=10, help="Gap open penalty for alignment-based metrics")
+parser.add_argument("--sub_gap_extend", type=int, default=2, help="Gap extend penalty for alignment-based metrics")
+args = parser.parse_args()
+
+# Check that the required directories exist
+pdb_dir = os.path.abspath(args.pdb_dir)
+reference_dir = os.path.abspath(args.reference_dir)
+target_dir = os.path.abspath(args.target_dir)
+
+assert os.path.exists(pdb_dir), f"PDB directory {pdb_dir} does not exist"
+assert os.path.exists(reference_dir), f"Reference directory {reference_dir} does not exist"
+assert os.path.exists(target_dir), f"Target directory {target_dir} does not exist"
 
 # Check that the required files exist
 pdb_files = glob(pdb_dir + "/*.pdb")
@@ -30,56 +56,55 @@ assert len(target_files) > 0, f"No target fasta files found in {target_dir}"
 
 # Structure metrics
 # ESM-IF, ProteinMPNN, MIF-ST, AlphaFold2 pLDDT
-from scoring_metrics import structure_metrics as st_metrics
-
-st_metrics.ESM_IF(results)
-st_metrics.ProteinMPNN(results)
-st_metrics.MIF_ST(results, device)
-st_metrics.AlphaFold2_pLDDT(results)
+st_metrics.ESM_IF(pdb_files, results)
+st_metrics.ProteinMPNN(pdb_files, results)
+st_metrics.MIF_ST(pdb_files, results, device)
+st_metrics.AlphaFold2_pLDDT(pdb_files, results)
 
 # Single sequence metrics
 # ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4
-
 target_seqs_file = "/tmp/target_seqs.fasta"
 with open(target_seqs_file,"w") as fh:
-  for target_fasta in glob("/target_seqs/*"):
+  for target_fasta in target_files:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
-from scoring_metrics import single_sequence_metrics as ss_metrics
-
 ss_metrics.CARP_640m_logp(target_seqs_file, results, device)
-ss_metrics.ESM_1v(results, device)
-ss_metrics.ESM_1v_mask6(results, device)
-ss_metrics.Repeat(results)
+ss_metrics.ESM_1v(target_files, results, device)
+ss_metrics.ESM_1v_mask6(target_files, results, device)
+ss_metrics.Repeat(target_files, results)
 
 # Alignment-based metrics
 # ESM-MSA, Identity to closest reference, Subtitution matix (BLOSUM62 or PFASUM15) score mean of mutated positions
-
-# substitution_matrix = "BLOSUM62" # ["BLOSUM62", "PFASUM15"]
+sub_matrix = args.sub_matrix.upper()
+score_mean = args.sub_score_mean
+identity = args.identity
+sub_gap_open = args.sub_gap_open
+sub_gap_extend = args.sub_gap_extend
 
 #concatenate reference sequences
+# Reference sequences
 reference_seqs_file = "/tmp/reference_seqs.fasta"
 with open(reference_seqs_file,"w") as fh:
-  for reference_fasta in glob("/reference_seqs/*"):
+  for reference_fasta in reference_files:
     for name, seq in zip(*parse_fasta(reference_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
+# Target sequences
 target_seqs_file = "/tmp/target_seqs.fasta"
 with open(target_seqs_file,"w") as fh:
-  for target_fasta in glob("/target_seqs/*"):
+  for target_fasta in reference_files:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
-from scoring_metrics import alignment_based_metrics as ab_metrics
-ab_metrics.ESM_MSA(results)
+ab_metrics.ESM_MSA(target_seqs_file, reference_seqs_file, results)
 ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
-                              substitution_matrix="BLOSUM62", 
-                              Substitution_matrix_score_mean_of_mutated_positions=True, 
-                              Identity_to_closest_reference=True,
+                              substitution_matrix=sub_matrix, 
+                              Substitution_matrix_score_mean_of_mutated_positions=score_mean, 
+                              Identity_to_closest_reference=identity,
                               results=results,
-                              gap_open=10,
-                              gap_extend=2,)
+                              gap_open=sub_gap_open,
+                              gap_extend=sub_gap_extend,)
 
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")

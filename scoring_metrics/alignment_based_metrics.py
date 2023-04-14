@@ -15,7 +15,7 @@ from scipy.spatial.distance import pdist
 
 
 # ESM-MSA
-def ESM_MSA(results):
+def ESM_MSA(target_seqs_file, reference_seqs_file, results):
   with tempfile.TemporaryDirectory() as output_dir:
     outfile = output_dir + "/esm_results.tsv"
     proc = subprocess.run(['python', "protein_gibbs_sampler/src/pgen/likelihood_esm_msa.py", "-i", target_seqs_file, "-o", outfile, "--reference_msa", reference_seqs_file, "--subset_strategy", "top_hits", "--alignment_size", "31", "--count_gaps", "--mask_distance", "6", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
@@ -31,11 +31,11 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
   #SEARCH #/tmp/mat.mat
   assert substitution_matrix in ["BLOSUM62", "PFAMSUM15"], "substitution_matrix must be 'BLOSUM62' or 'PFAMSUM15'"
   search_results_file = f"../tmp/ggsearch_results_{substitution_matrix}.txt"
+  substitution_matrix_file = f'../tmp/{substitution_matrix}.mat'
+  
   with open(search_results_file,"w") as fh:
     proc = subprocess.run(['ggsearch36', '-f', str(gap_open), '-g', str(gap_extend), '-s', substitution_matrix_file, '-b,' '1', target_seqs_file, reference_seqs_file], stdout=subprocess.PIPE, check=True)
     print(proc.stdout.decode('utf-8'), file=fh)
-
-  substitution_matrix_file = f'../tmp/{substitution_matrix}.mat'
   
   df = pd.read_csv(substitution_matrix_file, delimiter=r"\s+")
   blosum62 = {}
@@ -51,7 +51,6 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
 
   # with open(output[0],'w') as f: # ell is the number of non-gaps in the query sequence.
       # f.write(f'id,{substitution_matrix},{substitution_matrix}_n_aligned,{substitution_matrix}_ell,{substitution_matrix}_mut_mean,{substitution_matrix}_n_mut,{substitution_matrix}_worst,closest\n')
-  
 
   with open(search_results_file) as f:
     lines = f.readlines()

@@ -35,10 +35,10 @@ def CARP_640m_logp(target_seqs_file, results, device):
       add_metric(results, row["id"], "CARP-640m", row["carp640m_logp"])
 
 # ESM1v (unmasked)
-def ESM_1v(results, device): #TODO: allow other devices?
+def ESM_1v(target_files, results, device): #TODO: allow other devices?
   if device=='cuda:0':
     torch.cuda.empty_cache()
-  for targets_fasta in glob("../target_seqs/*"):
+  for targets_fasta in target_files:
     with tempfile.TemporaryDirectory() as output_dir:
       outfile = output_dir + "/esm_results.tsv"
       proc = subprocess.run(['python', "protein_gibbs_sampler/src/pgen/likelihood_esm.py", "-i", targets_fasta, "-o", outfile, "--model", "esm1v", "--masking_off", "--score_name", "score", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
@@ -50,10 +50,10 @@ def ESM_1v(results, device): #TODO: allow other devices?
       del df
 
 # ESM1v mask 6
-def ESM_1v_mask6(results, device): #TODO: allow other devices?
+def ESM_1v_mask6(target_files, results, device): #TODO: allow other devices?
   if device=='cuda:0':
     torch.cuda.empty_cache()
-  for targets_fasta in glob("../target_seqs/*"):
+  for targets_fasta in target_files:
     with tempfile.TemporaryDirectory() as output_dir:
       outfile = output_dir + "/esm_results.tsv"
       proc = subprocess.run(['python', "protein_gibbs_sampler/src/pgen/likelihood_esm.py", "-i", targets_fasta, "-o", outfile, "--model", "esm1v", "--mask_distance", "6", "--score_name", "score", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
@@ -78,7 +78,7 @@ def find_longest_repeat(seq, k):
         longest[i] = longest[i-k] + 1
   return -1 * max(longest)
 
-def Repeat(results):
+def Repeat(target_files, results):
     repeat_ks = list()
     if repeat_1:
         repeat_ks.append(1)
@@ -90,7 +90,7 @@ def Repeat(results):
         repeat_ks.append(4)
 
     for k in repeat_ks:
-        for targets_fasta in glob("../target_seqs/*"):
+        for targets_fasta in target_files:
             for name, seq in zip(*parse_fasta(targets_fasta, return_names=True, clean="unalign")):
                 score = find_longest_repeat(seq, k)
                 add_metric(results, name, f"longest_repeat_{k}", score)

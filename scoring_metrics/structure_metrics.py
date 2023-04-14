@@ -16,13 +16,13 @@ import pandas as pd
 from biotite.structure.io import pdb
 
 # ESM-IF
-def ESM_IF(results): #TODO: move to GPU? Maybe spin off into a subprocess when moving to GPU, to avoid memory leaks?
+def ESM_IF(pdb_files, results): #TODO: move to GPU? Maybe spin off into a subprocess when moving to GPU, to avoid memory leaks?
   esm_if_model, esm_if_alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
   # esm_if_model = esm_if_model.to(device) # TODO: for some reason it crashes when I move it to the GPU
   esm_if_model.eval()
         # with open(output[0],'w') as f:
         #     f.write('id,esm-if\n')
-  for pdb_file in glob("../pdbs/*.pdb"):
+  for pdb_file in pdb_files:
     fstem = Path(pdb_file).stem
     name = fstem
     coords, seq = esm.inverse_folding.util.load_coords(pdb_file, "A")
@@ -33,9 +33,9 @@ def ESM_IF(results): #TODO: move to GPU? Maybe spin off into a subprocess when m
   del esm_if_alphabet
 
 # ProteinMPNN
-def ProteinMPNN(results):
+def ProteinMPNN(pdb_files, results):
   with tempfile.TemporaryDirectory() as output_dir:
-    for i, pdb_file in enumerate(glob("../pdbs/*.pdb")):
+    for i, pdb_file in enumerate(pdb_files):
       command_line_arguments=[
       "python",
       "ProteinMPNN/vanilla_proteinmpnn/protein_mpnn_run.py",
@@ -61,12 +61,12 @@ def ProteinMPNN(results):
       add_metric(results, name, "ProteinMPNN", score)
 
 # MIF-ST
-def MIF_ST(results, device): 
+def MIF_ST(pdb_files, results, device): 
   with tempfile.TemporaryDirectory() as output_dir:
     spec_file_path = output_dir + "/spec_file.tsv"
     with open(spec_file_path, 'w') as f:
       f.write('name\tsequence\tpdb\n')
-      for pdb_file in glob("../pdbs/*.pdb"):
+      for pdb_file in pdb_files:
         seq = get_pdb_sequence(pdb_file) 
         name = Path(pdb_file).stem
         f.write(name + '\t' + seq + '\t' + pdb_file + '\n')
@@ -80,8 +80,8 @@ def MIF_ST(results, device):
       add_metric(results, row["id"], "MIF-ST", row["mifst_logp"])
 
 # pLDDT
-def AlphaFold2_pLDDT(results):
-  for pdb_file in glob("../pdbs/*.pdb"):
+def AlphaFold2_pLDDT(pdb_files, results):
+  for pdb_file in pdb_files:
     fstem = Path(pdb_file).stem
     name = fstem
     pdb_file = pdb.PDBFile.read(pdb_file)
