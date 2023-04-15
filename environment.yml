@@ -28,8 +28,6 @@ dependencies:
   - emboss
   - pytest
   - tqdm
-  - pytorch=1.13.1
-  - cudatoolkit=11.7
   - pytest-datadir~=1.4.1
   - biotite
   - pip:
