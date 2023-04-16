@@ -18,11 +18,6 @@ dependencies:
   - ete3~=3.1.2
   - pyqt~=5.9.2
   - fasta3~=36.3.8
-  - torch-scatter
-  - torch-sparse
-  - torch-cluster
-  - torch-spline-conv
-  - pytorch_geometric
   - hmmer
   - mafft
   - emboss
@@ -30,7 +25,14 @@ dependencies:
   - tqdm
   - pytest-datadir~=1.4.1
   - biotite
+  - pytorch=1.13.1
+  - cudatoolkit=11.7
   - pip:
       - sequence-models
       - "git+https://github.com/facebookresearch/esm.git@e5e7b06b9a093706607c229ab1c5c9821806814d" # ESM
       - -e .
+      - torch-scatter -f https://data.pyg.org/whl/torch-1.13.0+cu117.html
+      - torch-sparse -f https://data.pyg.org/whl/torch-1.13.0+cu117.html
+      - torch-cluster -f https://data.pyg.org/whl/torch-1.13.0+cu117.html
+      - torch-spline-conv -f https://data.pyg.org/whl/torch-1.13.0+cu117.html
+      - torch-geometric
