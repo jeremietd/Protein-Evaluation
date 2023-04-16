@@ -6,7 +6,7 @@
 # MIF_ST = True
 # AlphaFold2_pLDDT = True
 
-from utils import add_metric, get_pdb_sequence, residues_in_pdb
+from util import add_metric, get_pdb_sequence, residues_in_pdb
 import esm
 from glob import glob
 from pathlib import Path

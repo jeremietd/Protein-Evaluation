@@ -5,7 +5,7 @@
 # Substitution_matrix_score_mean_of_mutated_positions = True
 # Identity_to_closest_reference = True
 
-from utils import add_metric
+from util import add_metric
 import subprocess
 import tempfile
 import pandas as pd
