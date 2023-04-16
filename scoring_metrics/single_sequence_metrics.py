@@ -9,7 +9,7 @@
 # repeat_3 = True
 # repeat_4 = True
 
-from util import add_metric
+from .util import add_metric
 import tempfile
 import subprocess
 import pandas as pd
