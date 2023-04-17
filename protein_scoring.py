@@ -63,7 +63,7 @@ st_metrics.AlphaFold2_pLDDT(pdb_files, results)
 
 # Single sequence metrics
 # ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4
-target_seqs_file = "/tmp/target_seqs.fasta"
+target_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/target_seqs.fasta")
 with open(target_seqs_file,"w") as fh:
   for target_fasta in target_files:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
@@ -84,14 +84,14 @@ sub_gap_extend = args.sub_gap_extend
 
 #concatenate reference sequences
 # Reference sequences
-reference_seqs_file = "/tmp/reference_seqs.fasta"
+reference_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/reference_seqs.fasta")
 with open(reference_seqs_file,"w") as fh:
   for reference_fasta in reference_files:
     for name, seq in zip(*parse_fasta(reference_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
 # Target sequences
-target_seqs_file = "/tmp/target_seqs.fasta"
+target_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/target_seqs.fasta")
 with open(target_seqs_file,"w") as fh:
   for target_fasta in reference_files:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
@@ -108,7 +108,7 @@ ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
 
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")
-save_path = "calculated_metrics.csv"
+save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "calculated_metrics.csv")
 df.to_csv(save_path)
 print(f"Results saved to {save_path}")
 

@@ -12,13 +12,14 @@ import pandas as pd
 import numpy as np
 from pgen.utils import parse_fasta
 from scipy.spatial.distance import pdist
+import os
 
 
 # ESM-MSA
 def ESM_MSA(target_seqs_file, reference_seqs_file, results):
   with tempfile.TemporaryDirectory() as output_dir:
     outfile = output_dir + "/esm_results.tsv"
-    proc = subprocess.run(['python', "protein_gibbs_sampler/src/pgen/likelihood_esm_msa.py", "-i", target_seqs_file, "-o", outfile, "--reference_msa", reference_seqs_file, "--subset_strategy", "top_hits", "--alignment_size", "31", "--count_gaps", "--mask_distance", "6", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "protein_gibbs_sampler/src/pgen/likelihood_esm_msa.py"), "-i", target_seqs_file, "-o", outfile, "--reference_msa", reference_seqs_file, "--subset_strategy", "top_hits", "--alignment_size", "31", "--count_gaps", "--mask_distance", "6", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     # print(proc.stdout)
     # print(proc.stderr)
     df = pd.read_table(outfile)
@@ -30,8 +31,8 @@ def ESM_MSA(target_seqs_file, reference_seqs_file, results):
 def substitution_score(target_seqs_file, reference_seqs_file, substitution_matrix:str, Substitution_matrix_score_mean_of_mutated_positions:bool, Identity_to_closest_reference:bool, results, gap_open:int = 10, gap_extend:int = 2,):
   #SEARCH #/tmp/mat.mat
   assert substitution_matrix in ["BLOSUM62", "PFAMSUM15"], "substitution_matrix must be 'BLOSUM62' or 'PFAMSUM15'"
-  search_results_file = f"../tmp/ggsearch_results_{substitution_matrix}.txt"
-  substitution_matrix_file = f'../tmp/{substitution_matrix}.mat'
+  search_results_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), f"tmp/ggsearch_results_{substitution_matrix}.txt")
+  substitution_matrix_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'tmp/{substitution_matrix}.mat')
   
   with open(search_results_file,"w") as fh:
     proc = subprocess.run(['ggsearch36', '-f', str(gap_open), '-g', str(gap_extend), '-s', substitution_matrix_file, '-b,' '1', target_seqs_file, reference_seqs_file], stdout=subprocess.PIPE, check=True)

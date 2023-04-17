@@ -16,6 +16,7 @@ import pandas as pd
 from glob import glob
 import torch
 from pgen.utils import parse_fasta
+import os
 
 # target_seqs_file = "/tmp/target_seqs.fasta"
 # with open(target_seqs_file,"w") as fh:
@@ -26,7 +27,7 @@ from pgen.utils import parse_fasta
 #CARP
 def CARP_640m_logp(target_seqs_file, results, device): 
   with tempfile.TemporaryDirectory() as output_dir:
-    proc = subprocess.run(['python', "../tmp/extract.py", "carp_640M", target_seqs_file, output_dir + "/", "--repr_layers", "logits", "--include", "logp", "--device", device], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "tmp/extract.py"), "carp_640M", target_seqs_file, output_dir + "/", "--repr_layers", "logits", "--include", "logp", "--device", device], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     # print(proc.stderr)
     # print(proc.stdout)
     df = pd.read_table(output_dir + '/carp_640M_logp.tsv')
@@ -41,7 +42,7 @@ def ESM_1v(target_files, results, device): #TODO: allow other devices?
   for targets_fasta in target_files:
     with tempfile.TemporaryDirectory() as output_dir:
       outfile = output_dir + "/esm_results.tsv"
-      proc = subprocess.run(['python', "protein_gibbs_sampler/src/pgen/likelihood_esm.py", "-i", targets_fasta, "-o", outfile, "--model", "esm1v", "--masking_off", "--score_name", "score", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+      proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "protein_gibbs_sampler/src/pgen/likelihood_esm.py"), "-i", targets_fasta, "-o", outfile, "--model", "esm1v", "--masking_off", "--score_name", "score", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
       # print(proc.stdout)
       # print(proc.stderr)
       df = pd.read_table(outfile)
@@ -56,7 +57,7 @@ def ESM_1v_mask6(target_files, results, device): #TODO: allow other devices?
   for targets_fasta in target_files:
     with tempfile.TemporaryDirectory() as output_dir:
       outfile = output_dir + "/esm_results.tsv"
-      proc = subprocess.run(['python', "protein_gibbs_sampler/src/pgen/likelihood_esm.py", "-i", targets_fasta, "-o", outfile, "--model", "esm1v", "--mask_distance", "6", "--score_name", "score", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+      proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "protein_gibbs_sampler/src/pgen/likelihood_esm.py"), "-i", targets_fasta, "-o", outfile, "--model", "esm1v", "--mask_distance", "6", "--score_name", "score", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
       # print(proc.stdout)
       # print(proc.stderr)
       df = pd.read_table(outfile)

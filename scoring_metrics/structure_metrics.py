@@ -14,6 +14,7 @@ import tempfile
 import subprocess
 import pandas as pd
 from biotite.structure.io import pdb
+import os
 
 # ESM-IF
 def ESM_IF(pdb_files, results): #TODO: move to GPU? Maybe spin off into a subprocess when moving to GPU, to avoid memory leaks?
@@ -38,7 +39,7 @@ def ProteinMPNN(pdb_files, results):
     for i, pdb_file in enumerate(pdb_files):
       command_line_arguments=[
       "python",
-      "ProteinMPNN/vanilla_proteinmpnn/protein_mpnn_run.py",
+      os.path.join(os.path.dirname(os.path.realpath(__file__)), "ProteinMPNN/vanilla_proteinmpnn/protein_mpnn_run.py"),
       "--pdb_path", pdb_file,
       "--pdb_path_chains", "A",
       "--score_only", "1",
@@ -71,7 +72,7 @@ def MIF_ST(pdb_files, results, device):
         name = Path(pdb_file).stem
         f.write(name + '\t' + seq + '\t' + pdb_file + '\n')
     #print(spec_file_path)
-    proc = subprocess.run(['python', "../tmp/extract_mif.py", "mifst", spec_file_path, output_dir + "/", "logits", "--include", "logp", "--device", device], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "tmp/extract_mif.py"), "mifst", spec_file_path, output_dir + "/", "logits", "--include", "logp", "--device", device], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     # print(proc.stderr.decode("utf-8"))
     # print(proc.stdout.decode("utf-8"))
     df = pd.read_table(output_dir + '/mifst_logp.tsv')
