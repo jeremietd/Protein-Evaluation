@@ -1,4 +1,4 @@
-name: T-EVAL
+name: trans_eval
 channels:
   - defaults
   - bioconda
