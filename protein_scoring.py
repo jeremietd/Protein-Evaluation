@@ -33,6 +33,10 @@ parser.add_argument("--score_mean", action="store_false", help="Whether to score
 parser.add_argument("--identity", action="store_false", help="Whether to score the identity of the mutated sequence to the closest reference sequence")
 parser.add_argument("--sub_gap_open", type=int, default=10, help="Gap open penalty for alignment-based metrics")
 parser.add_argument("--sub_gap_extend", type=int, default=2, help="Gap extend penalty for alignment-based metrics")
+parser.add_argument("--repeat_score_1", action="store_false", help="Whether to score the first repeat")
+parser.add_argument("--repeat_score_2", action="store_false", help="Whether to score the second repeat")
+parser.add_argument("--repeat_score_3", action="store_false", help="Whether to score the third repeat")
+parser.add_argument("--repeat_score_4", action="store_false", help="Whether to score the fourth repeat")
 args = parser.parse_args()
 
 # Check that the required directories exist
@@ -69,10 +73,16 @@ with open(target_seqs_file,"w") as fh:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
+repeat_score = dict()
+repeat_score['repeat_1'] = args.repeat_score_1
+repeat_score['repeat_2'] = args.repeat_score_2
+repeat_score['repeat_3'] = args.repeat_score_3
+repeat_score['repeat_4'] = args.repeat_score_4
+
 ss_metrics.CARP_640m_logp(target_seqs_file, results, device)
 ss_metrics.ESM_1v(target_files, results, device)
 ss_metrics.ESM_1v_mask6(target_files, results, device)
-ss_metrics.Repeat(target_files, results)
+ss_metrics.Repeat(target_files, repeat_score, results)
 
 # Alignment-based metrics
 # ESM-MSA, Identity to closest reference, Subtitution matix (BLOSUM62 or PFASUM15) score mean of mutated positions

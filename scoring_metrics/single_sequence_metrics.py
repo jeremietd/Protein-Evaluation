@@ -79,15 +79,15 @@ def find_longest_repeat(seq, k):
         longest[i] = longest[i-k] + 1
   return -1 * max(longest)
 
-def Repeat(target_files, results):
+def Repeat(target_files, repeat_score, results):
     repeat_ks = list()
-    if repeat_1:
+    if repeat_score['repeat_1']:
         repeat_ks.append(1)
-    if repeat_2:
+    if repeat_score['repeat_2']:
         repeat_ks.append(2)
-    if repeat_3:
+    if repeat_score['repeat_3']:
         repeat_ks.append(3)
-    if repeat_4:
+    if repeat_score['repeat_4']:
         repeat_ks.append(4)
 
     for k in repeat_ks:
