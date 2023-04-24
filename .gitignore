@@ -3,3 +3,5 @@
 *.pyc
 __pycache__
 src/pgen.egg-info/
+*/tmp/*.fasta
+tmp/*.fasta
