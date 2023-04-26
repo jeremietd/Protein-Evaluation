@@ -87,10 +87,10 @@ with open(target_seqs_file,"w") as fh:
       print(f">{name}\n{seq}", file=fh)
 
 repeat_score = dict()
-repeat_score['repeat_1'] = args.repeat_score_1
-repeat_score['repeat_2'] = args.repeat_score_2
-repeat_score['repeat_3'] = args.repeat_score_3
-repeat_score['repeat_4'] = args.repeat_score_4
+repeat_score['repeat_1'] = args.remove_repeat_score_1
+repeat_score['repeat_2'] = args.remove_repeat_score_2
+repeat_score['repeat_3'] = args.remove_repeat_score_3
+repeat_score['repeat_4'] = args.remove_repeat_score_4
 
 ss_metrics.CARP_640m_logp(target_seqs_file, results, device)
 ss_metrics.ESM_1v(target_files, results, device)
@@ -100,8 +100,8 @@ ss_metrics.Repeat(target_files, repeat_score, results)
 # Alignment-based metrics
 # ESM-MSA, Identity to closest reference, Subtitution matix (BLOSUM62 or PFASUM15) score mean of mutated positions
 sub_matrix = args.sub_matrix.upper()
-score_mean = args.sub_score_mean
-identity = args.identity
+score_mean = args.remove_sub_score_mean
+identity = args.remove_identity
 sub_gap_open = args.sub_gap_open
 sub_gap_extend = args.sub_gap_extend
 
