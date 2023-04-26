@@ -16,10 +16,12 @@ results = dict()
 # Default directories
 file_dir = os.path.dirname(os.path.realpath(__file__))
 default_pdb_dir = os.path.join(file_dir, "pdbs")
+default_reference_pdb_dir = os.path.join(file_dir, "reference_pdbs")
 default_reference_dir = os.path.join(file_dir, "reference_seqs")
 default_target_dir = os.path.join(file_dir, "target_seqs")
 
 os.makedirs(default_pdb_dir) if not os.path.exists(default_pdb_dir) else None
+os.makedirs(default_reference_pdb_dir) if not os.path.exists(default_reference_pdb_dir) else None
 os.makedirs(default_reference_dir) if not os.path.exists(default_reference_dir) else None
 os.makedirs(default_target_dir) if not os.path.exists(default_target_dir) else None
 
@@ -27,6 +29,7 @@ os.makedirs(default_target_dir) if not os.path.exists(default_target_dir) else N
 parser = argparse.ArgumentParser()
 parser.add_argument("--pdb_dir", type=str, default=default_pdb_dir, help="Directory containing pdb files")
 parser.add_argument("--reference_dir", type=str, default=default_reference_dir, help="Directory containing reference fasta files")
+parser.add_argument("--ref_pdb_dir", type=str, default=default_reference_pdb_dir, help="Directory containing reference pdb files")
 parser.add_argument("--target_dir", type=str, default=default_target_dir, help="Directory containing target fasta files")
 parser.add_argument("--sub_matrix", type=str, choices=["blosum62", "pfasum15"], default="blosum62", help="Substitution matrix to use for alignment-based metrics")
 parser.add_argument("--remove_sub_score_mean", action="store_false", help="Whether to not score the mean of the scores for mutated sequences")
@@ -41,25 +44,34 @@ args = parser.parse_args()
 
 # Check that the required directories exist
 pdb_dir = os.path.abspath(args.pdb_dir)
+ref_pdb_dir = os.path.abspath(args.ref_pdb_dir)
 reference_dir = os.path.abspath(args.reference_dir)
 target_dir = os.path.abspath(args.target_dir)
 
 assert os.path.exists(pdb_dir), f"PDB directory {pdb_dir} does not exist"
+assert os.path.exists(ref_pdb_dir), f"Reference PDB directory {ref_pdb_dir} does not exist"
 assert os.path.exists(reference_dir), f"Reference directory {reference_dir} does not exist"
 assert os.path.exists(target_dir), f"Target directory {target_dir} does not exist"
 
 # Check that the required files exist
 pdb_files = glob(pdb_dir + "/*.pdb")
+reference_pdb_files = glob(ref_pdb_dir + "/*.pdb")
 reference_files = glob(reference_dir + "/*.fasta")
 target_files = glob(target_dir + "/*.fasta")
 
 assert len(pdb_files) > 0, f"No pdb files found in {pdb_dir}"
+assert len(reference_pdb_files) > 0, f"No reference pdb files found in {ref_pdb_dir}"
 assert len(reference_files) > 0, f"No reference fasta files found in {reference_dir}"
 assert len(target_files) > 0, f"No target fasta files found in {target_dir}"
 
 
 # Structure metrics
 # ESM-IF, ProteinMPNN, MIF-ST, AlphaFold2 pLDDT
+if len(reference_pdb_files) > 1:
+  print("Found multiple reference pdb files, using the first one")
+  print(f"Found {len(reference_pdb_files)} reference pdb files, using {reference_pdb_files[0]}")
+  reference_pdb = reference_pdb_files[0]
+st_metrics.TM_score(pdb_files, reference_pdb, results)
 st_metrics.ESM_IF(pdb_files, results)
 st_metrics.ProteinMPNN(pdb_files, results)
 st_metrics.MIF_ST(pdb_files, results, device)

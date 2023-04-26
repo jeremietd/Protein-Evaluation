@@ -37,3 +37,4 @@ dependencies:
       - torch-cluster -f https://data.pyg.org/whl/torch-1.13.1+cu117.html
       - torch-spline-conv -f https://data.pyg.org/whl/torch-1.13.1+cu117.html
       - torch-geometric
+      - tmscoring

@@ -15,6 +15,7 @@ import subprocess
 import pandas as pd
 from biotite.structure.io import pdb
 import os
+import tmscoring
 
 # ESM-IF
 def ESM_IF(pdb_files, results): #TODO: move to GPU? Maybe spin off into a subprocess when moving to GPU, to avoid memory leaks?
@@ -96,3 +97,11 @@ def AlphaFold2_pLDDT(pdb_files, results):
         residue_count += 1
         plddt_sum += a.b_factor
     add_metric(results, name, "AlphaFold2 pLDDT", plddt_sum/residue_count)
+
+def TM_score(pdb_files, reference_pdb, results):
+  for pdb_file in pdb_files:
+    fstem = Path(pdb_file).stem
+    name = fstem
+    # PDB1 = Reference; PDB2 = Target
+    tmscore = tmscoring.get_tm(reference_pdb, pdb_file)
+    add_metric(results, name, "TM Score", tmscore)
