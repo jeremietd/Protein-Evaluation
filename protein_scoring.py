@@ -40,43 +40,51 @@ parser.add_argument("--remove_repeat_score_1", action="store_false", help="Wheth
 parser.add_argument("--remove_repeat_score_2", action="store_false", help="Whether to not score the second repeat")
 parser.add_argument("--remove_repeat_score_3", action="store_false", help="Whether to not score the third repeat")
 parser.add_argument("--remove_repeat_score_4", action="store_false", help="Whether to not score the fourth repeat")
+parser.add_argument("--score_structure", action="store_true", help="Whether to score structural metrics")
+parser.add_argument('--output_name', type=str, required=True, help='Output file name (Just name with no extension!)')
 args = parser.parse_args()
 
+score_structure = args.score_structure
+
 # Check that the required directories exist
-pdb_dir = os.path.abspath(args.pdb_dir)
-ref_pdb_dir = os.path.abspath(args.ref_pdb_dir)
+if score_structure:
+  pdb_dir = os.path.abspath(args.pdb_dir)
+  ref_pdb_dir = os.path.abspath(args.ref_pdb_dir)
 reference_dir = os.path.abspath(args.reference_dir)
 target_dir = os.path.abspath(args.target_dir)
 
-assert os.path.exists(pdb_dir), f"PDB directory {pdb_dir} does not exist"
-assert os.path.exists(ref_pdb_dir), f"Reference PDB directory {ref_pdb_dir} does not exist"
+if score_structure:
+  assert os.path.exists(pdb_dir), f"PDB directory {pdb_dir} does not exist"
+  assert os.path.exists(ref_pdb_dir), f"Reference PDB directory {ref_pdb_dir} does not exist"
 assert os.path.exists(reference_dir), f"Reference directory {reference_dir} does not exist"
 assert os.path.exists(target_dir), f"Target directory {target_dir} does not exist"
 
 # Check that the required files exist
-pdb_files = glob(pdb_dir + "/*.pdb")
-reference_pdb_files = glob(ref_pdb_dir + "/*.pdb")
+if score_structure:
+  pdb_files = glob(pdb_dir + "/*.pdb")
+  reference_pdb_files = glob(ref_pdb_dir + "/*.pdb")
 reference_files = glob(reference_dir + "/*.fasta")
 target_files = glob(target_dir + "/*.fasta")
 
-assert len(pdb_files) > 0, f"No pdb files found in {pdb_dir}"
-assert len(reference_pdb_files) > 0, f"No reference pdb files found in {ref_pdb_dir}"
+if score_structure:
+  assert len(pdb_files) > 0, f"No pdb files found in {pdb_dir}"
+  assert len(reference_pdb_files) > 0, f"No reference pdb files found in {ref_pdb_dir}"
 assert len(reference_files) > 0, f"No reference fasta files found in {reference_dir}"
 assert len(target_files) > 0, f"No target fasta files found in {target_dir}"
 
-
+if score_structure:
 # Structure metrics
 # ESM-IF, ProteinMPNN, MIF-ST, AlphaFold2 pLDDT
-if len(reference_pdb_files) > 1:
-  print("Found multiple reference pdb files, using the first one")
-  print(f"Found {len(reference_pdb_files)} reference pdb files, using {reference_pdb_files[0]}")
-reference_pdb = reference_pdb_files[0]
+  if len(reference_pdb_files) > 1:
+    print("Found multiple reference pdb files, using the first one")
+    print(f"Found {len(reference_pdb_files)} reference pdb files, using {reference_pdb_files[0]}")
+  reference_pdb = reference_pdb_files[0]
 
-st_metrics.TM_score(pdb_files, reference_pdb, results)
-st_metrics.ESM_IF(pdb_files, results)
-st_metrics.ProteinMPNN(pdb_files, results)
-st_metrics.MIF_ST(pdb_files, results, device)
-st_metrics.AlphaFold2_pLDDT(pdb_files, results)
+  st_metrics.TM_score(pdb_files, reference_pdb, results)
+  st_metrics.ESM_IF(pdb_files, results)
+  st_metrics.ProteinMPNN(pdb_files, results)
+  st_metrics.MIF_ST(pdb_files, results, device)
+  st_metrics.AlphaFold2_pLDDT(pdb_files, results)
 
 # Single sequence metrics
 # ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4
@@ -131,7 +139,10 @@ ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
 
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")
-save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "calculated_metrics.csv")
+if score_structure:
+  save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results/{}.csv".format(args.output_name))
+else :
+  save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results/{}_no_structure.csv".format(args.output_name))
 df.to_csv(save_path)
 print(f"Results saved to {save_path}")
 
