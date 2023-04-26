@@ -70,7 +70,8 @@ assert len(target_files) > 0, f"No target fasta files found in {target_dir}"
 if len(reference_pdb_files) > 1:
   print("Found multiple reference pdb files, using the first one")
   print(f"Found {len(reference_pdb_files)} reference pdb files, using {reference_pdb_files[0]}")
-  reference_pdb = reference_pdb_files[0]
+reference_pdb = reference_pdb_files[0]
+
 st_metrics.TM_score(pdb_files, reference_pdb, results)
 st_metrics.ESM_IF(pdb_files, results)
 st_metrics.ProteinMPNN(pdb_files, results)
