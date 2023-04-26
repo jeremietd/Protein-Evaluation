@@ -27,7 +27,7 @@ dependencies:
   - biotite
   - pytorch=1.13.1
   - cudatoolkit=11.7
-  - iminuit
+  - iminuit<2
   - pip:
       - sequence-models
       - fair-esm==0.4.2
