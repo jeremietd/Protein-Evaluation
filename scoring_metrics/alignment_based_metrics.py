@@ -30,7 +30,7 @@ def ESM_MSA(target_seqs_file, reference_seqs_file, results):
 # substitution score
 def substitution_score(target_seqs_file, reference_seqs_file, substitution_matrix:str, Substitution_matrix_score_mean_of_mutated_positions:bool, Identity_to_closest_reference:bool, results, gap_open:int = 10, gap_extend:int = 2,):
   #SEARCH #/tmp/mat.mat
-  assert substitution_matrix in ["BLOSUM62", "PFAMSUM15"], "substitution_matrix must be 'BLOSUM62' or 'PFAMSUM15'"
+  assert substitution_matrix in ["BLOSUM62", "PFASUM15"], "substitution_matrix must be 'BLOSUM62' or 'PFASUM15'"
   search_results_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), f"tmp/ggsearch_results_{substitution_matrix}.txt")
   substitution_matrix_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'tmp/{substitution_matrix}.mat')
   

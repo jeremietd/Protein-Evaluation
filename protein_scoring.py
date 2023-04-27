@@ -124,7 +124,7 @@ with open(reference_seqs_file,"w") as fh:
 # Target sequences
 target_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/target_seqs.fasta")
 with open(target_seqs_file,"w") as fh:
-  for target_fasta in reference_files:
+  for target_fasta in target_files:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
