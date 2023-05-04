@@ -74,8 +74,8 @@ def MIF_ST(pdb_files, results, device):
         f.write(name + '\t' + seq + '\t' + pdb_file + '\n')
     #print(spec_file_path)
     proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "tmp/extract_mif.py"), "mifst", spec_file_path, output_dir + "/", "logits", "--include", "logp", "--device", device], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    # print(proc.stderr.decode("utf-8"))
-    # print(proc.stdout.decode("utf-8"))
+    print(proc.stderr.decode("utf-8"))
+    print(proc.stdout.decode("utf-8"))
     df = pd.read_table(output_dir + '/mifst_logp.tsv')
     df = df.rename(columns={'name': 'id', 'logp': 'mifst_logp'}, )
     for _, row in df.iterrows():

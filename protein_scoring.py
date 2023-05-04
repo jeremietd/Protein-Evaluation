@@ -140,9 +140,11 @@ ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")
 if score_structure:
-  save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results/{}.csv".format(args.output_name))
+  save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "{}.csv".format(args.output_name))
 else :
-  save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results/{}_no_structure.csv".format(args.output_name))
+  save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "{}_no_structure.csv".format(args.output_name))
+os.makedirs(os.path.dirname(os.path.realpath(save_path))) if not os.path.exists(os.path.dirname(os.path.realpath(save_path))) else None
+
 df.to_csv(save_path)
 print(f"Results saved to {save_path}")
 
