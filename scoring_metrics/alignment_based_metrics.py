@@ -17,9 +17,15 @@ import os
 
 # ESM-MSA
 def ESM_MSA(target_seqs_file, reference_seqs_file, results):
+  print("Scoring with ESM-MSA")
   with tempfile.TemporaryDirectory() as output_dir:
     outfile = output_dir + "/esm_results.tsv"
-    proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "protein_gibbs_sampler/src/pgen/likelihood_esm_msa.py"), "-i", target_seqs_file, "-o", outfile, "--reference_msa", reference_seqs_file, "--subset_strategy", "top_hits", "--alignment_size", "31", "--count_gaps", "--mask_distance", "6", "--device", "gpu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    try:
+      proc = subprocess.run(['python', os.path.join(os.path.dirname(os.path.realpath(__file__)), "protein_gibbs_sampler/src/pgen/likelihood_esm_msa.py"), "-i", target_seqs_file, "-o", outfile, "--reference_msa", reference_seqs_file, "--subset_strategy", "top_hits", "--alignment_size", "31", "--count_gaps", "--mask_distance", "6", "--device", "gpu"], check=True, capture_output=True) # stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    except subprocess.CalledProcessError as e:
+      print(e.stderr.decode('utf-8'))
+      print(e.stdout.decode('utf-8'))
+      raise e
     # print(proc.stdout)
     # print(proc.stderr)
     df = pd.read_table(outfile)
