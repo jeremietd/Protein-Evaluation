@@ -13,3 +13,23 @@ Calculation for various sequence- and structure-based quality scores for protein
 
 **Reference Sequences**: For alignment-based metrics
 ***
+
+## Example usage
+1. Scoring with single-sequence and alignment-based metrics only
+```
+python  protein_scoring.py \
+        --output_name [directory (inside this folder) to store the output csv] \
+        --target_dir [directory of target sequences in FASTA format] \
+        --reference_dir [directory of reference sequences in FASTA format]
+```
+
+2. Scoring with all metrics (including structure-based metrics)
+```
+srun python Tranception-Evaluation/protein_scoring.py \
+        --score_structure [flag to include structure-based metrics] \
+        --output_name [directory (inside this folder) to store the output csv] \
+        --target_dir [directory of target sequences in FASTA format] \
+        --reference_dir [directory of reference sequences in FASTA format] \
+        --pdb_dir [directory of target sequences in pdb format] \
+        --ref_pdb_dir [directory of reference sequences in pdb format]
+```
