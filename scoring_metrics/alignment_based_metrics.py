@@ -104,7 +104,7 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
         worst_score = np.inf
         n_mutants = 0
         n_aligned = 0
-        #print(seqs)
+        # print("Closest sequence:", seqs[0])
         seqs_array = np.array([[ord(ss) for ss in list(s)] for s in seqs])
         dist = pdist(seqs_array, metric='hamming')[0]
         identity = 1.0 - dist
@@ -134,3 +134,4 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
       add_metric(results, qn, substitution_matrix, mutant_score)
     if Identity_to_closest_reference:      
       add_metric(results, qn, "Identity", identity)
+    

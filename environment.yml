@@ -26,6 +26,8 @@ dependencies:
   - pytest-datadir~=1.4.1
   - biotite
   - pytorch=1.13.1
+  - transformers=4.17
+  - datasets=1.18.3
   - cudatoolkit=11.7
   - iminuit<2
   - pip:

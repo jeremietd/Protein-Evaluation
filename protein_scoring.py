@@ -41,6 +41,8 @@ parser.add_argument("--remove_repeat_score_2", action="store_false", help="Wheth
 parser.add_argument("--remove_repeat_score_3", action="store_false", help="Whether to not score the third repeat")
 parser.add_argument("--remove_repeat_score_4", action="store_false", help="Whether to not score the fourth repeat")
 parser.add_argument("--score_structure", action="store_true", help="Whether to score structural metrics")
+parser.add_argument("--use_tranception", action="store_true", help="Whether to use Tranception")
+parser.add_argument("--orig_seq", type=str, help="Original sequence to use for Tranception")
 parser.add_argument('--output_name', type=str, required=True, help='Output file name (Just name with no extension!)')
 args = parser.parse_args()
 
@@ -86,25 +88,6 @@ if score_structure:
   st_metrics.MIF_ST(pdb_files, results, device)
   st_metrics.AlphaFold2_pLDDT(pdb_files, results)
 
-# Single sequence metrics
-# ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4
-target_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/target_seqs.fasta")
-with open(target_seqs_file,"w") as fh:
-  for target_fasta in target_files:
-    for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
-      print(f">{name}\n{seq}", file=fh)
-
-repeat_score = dict()
-repeat_score['repeat_1'] = args.remove_repeat_score_1
-repeat_score['repeat_2'] = args.remove_repeat_score_2
-repeat_score['repeat_3'] = args.remove_repeat_score_3
-repeat_score['repeat_4'] = args.remove_repeat_score_4
-
-ss_metrics.CARP_640m_logp(target_seqs_file, results, device)
-ss_metrics.ESM_1v(target_files, results, device)
-ss_metrics.ESM_1v_mask6(target_files, results, device)
-ss_metrics.Repeat(target_files, repeat_score, results)
-
 # Alignment-based metrics
 # ESM-MSA, Identity to closest reference, Subtitution matix (BLOSUM62 or PFASUM15) score mean of mutated positions
 sub_matrix = args.sub_matrix.upper()
@@ -136,6 +119,27 @@ ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
                               results=results,
                               gap_open=sub_gap_open,
                               gap_extend=sub_gap_extend,)
+
+# Single sequence metrics
+# ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4
+target_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/target_seqs.fasta")
+with open(target_seqs_file,"w") as fh:
+  for target_fasta in target_files:
+    for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
+      print(f">{name}\n{seq}", file=fh)
+
+repeat_score = dict()
+repeat_score['repeat_1'] = args.remove_repeat_score_1
+repeat_score['repeat_2'] = args.remove_repeat_score_2
+repeat_score['repeat_3'] = args.remove_repeat_score_3
+repeat_score['repeat_4'] = args.remove_repeat_score_4
+
+ss_metrics.CARP_640m_logp(target_seqs_file, results, device)
+ss_metrics.ESM_1v(target_files, results, device)
+ss_metrics.ESM_1v_mask6(target_files, results, device)
+ss_metrics.Repeat(target_files, repeat_score, results)
+if args.use_tranception:
+  ss_metrics.Tranception(target_files=target_files, orig_seq=args.orig_seq.upper(), results=results, device=device, model_type="Small")
 
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")
