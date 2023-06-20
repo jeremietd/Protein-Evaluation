@@ -5,7 +5,7 @@
 # Substitution_matrix_score_mean_of_mutated_positions = True
 # Identity_to_closest_reference = True
 
-from .util import add_metric
+from .util import add_metric, identify_mutation, extract_mutations
 import subprocess
 import tempfile
 import pandas as pd
@@ -13,6 +13,8 @@ import numpy as np
 from pgen.utils import parse_fasta
 from scipy.spatial.distance import pdist
 import os
+from EVmutation.model import CouplingsModel
+from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
 # ESM-MSA
@@ -134,4 +136,27 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
       add_metric(results, qn, substitution_matrix, mutant_score)
     if Identity_to_closest_reference:      
       add_metric(results, qn, "Identity", identity)
+
+def EVmutation(target_files, orig_seq, results, model_params):
+  # Load Model
+  c = CouplingsModel(model_params)
+  # Load targets
+  for targets_fasta in target_files:
+    with open(targets_fasta) as fasta_file:  # Will close handle cleanly
+      identifiers = []
+      seqeunce = []
+      for title, sequence in SimpleFastaParser(fasta_file):
+          identifiers.append(title.split(None, 1)[0])  # First word is ID
+          seqeunce.append(sequence)
+      targets = pd.DataFrame({"id":identifiers,"mutated_sequence":seqeunce})
+  # Calculate delta E (log-likehood of mutation)
+  for i, row in targets.iterrows():
+    target = row['mutated_sequence']
+    mutations = identify_mutation(target, orig_seq)
+    extract = extract_mutations(mutations)
+    delta_E, delta_E_couplings, delta_E_fields = c.delta_hamiltonian(extract)
+    add_metric(results, row['id'], "EVmutation", delta_E)
+  
+
+
     

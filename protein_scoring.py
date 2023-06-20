@@ -42,15 +42,20 @@ parser.add_argument("--remove_repeat_score_3", action="store_false", help="Wheth
 parser.add_argument("--remove_repeat_score_4", action="store_false", help="Whether to not score the fourth repeat")
 parser.add_argument("--score_structure", action="store_true", help="Whether to score structural metrics")
 parser.add_argument("--use_tranception", action="store_true", help="Whether to use Tranception")
-parser.add_argument("--orig_seq", type=str, help="Original sequence to use for Tranception")
+parser.add_argument("--use_evmutation", action="store_true", help="Whether to use EVmutation")
+parser.add_argument("--model_params", type=str, help="Model params to use for EVmutation")
+parser.add_argument("--orig_seq", type=str, help="Original sequence to use for Tranception or EVmutation")
 parser.add_argument('--output_name', type=str, required=True, help='Output file name (Just name with no extension!)')
 args = parser.parse_args()
 
 score_structure = args.score_structure
 
 # Checks
-if args.use_tranception:
-  assert args.orig_seq, "Must specify original sequence if using Tranception"
+if args.use_tranception or args.use_evmutation:
+  assert args.orig_seq, "Must specify original sequence if using Tranception or EVmutation"
+if args.use_evmutation:
+  assert args.model_params, "Must specify model params if using EVmutation"
+  assert os.path.exists(args.model_params), f"Model params {args.model_params} does not exist"
 
 # Check that the required directories exist
 if score_structure:
@@ -123,6 +128,8 @@ ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
                               results=results,
                               gap_open=sub_gap_open,
                               gap_extend=sub_gap_extend,)
+if args.use_evmutation:
+  ab_metrics.EVmutation(target_files=target_files, orig_seq=args.orig_seq.upper(), results=results, model_params=args.model_params)
 
 # Single sequence metrics
 # ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4

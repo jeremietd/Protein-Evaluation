@@ -107,7 +107,6 @@ def Repeat(target_files, repeat_score, results):
 def Tranception(target_files, orig_seq, results, device, model_type="Small"):
   if device=='cuda:0':
     torch.cuda.empty_cache()
-  assert orig_seq is not None, "orig_seq must be provided for Tranception"
   for targets_fasta in target_files:
     with open(targets_fasta) as fasta_file:  # Will close handle cleanly
       identifiers = []

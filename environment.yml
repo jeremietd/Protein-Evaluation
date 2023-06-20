@@ -30,6 +30,8 @@ dependencies:
   - datasets=1.18.3
   - cudatoolkit=11.7
   - iminuit<2
+  - numba
+  - numpy
   - pip:
       - sequence-models
       - fair-esm==0.4.2
