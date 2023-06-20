@@ -21,9 +21,10 @@ def residues_in_pdb(pdb_path):
         atoms  = pdb_file.get_structure()
     return get_residue_count(atoms)
 
-def identify_mutation(str1, str2, sep=','):
-    str1vec = list(str1)
-    str2vec = list(str2)
+def identify_mutation(reference, target, sep=','):
+    str1vec = list(reference)
+    str2vec = list(target)
+    assert len(str1vec) == len(str2vec), 'Sequence lengths must be equal'
     iMut = [i for i in range(len(str1vec)) if str1vec[i] != str2vec[i]]
     return f'{sep}'.join([str1vec[i] + str(i+1) + str2vec[i] for i in iMut])
 

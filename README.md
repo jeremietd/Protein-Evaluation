@@ -33,3 +33,21 @@ srun python Tranception-Evaluation/protein_scoring.py \
         --pdb_dir [directory of target sequences in pdb format] \
         --ref_pdb_dir [directory of reference sequences in pdb format]
 ```
+
+3. If using **Tranception** or **EVmutation**: Add the orig_seq flag to input the original sequence. For EVmutation, run plmc and define the model params path.
+```
+python  protein_scoring.py \
+        --output_name [directory (inside this folder) to store the output csv] \
+        --target_dir [directory of target sequences in FASTA format] \
+        --reference_dir [directory of reference sequences in FASTA format] \
+        --use_tranception [flag to use Tranception] \ 
+        --use_evmutation [flag to use EVmutation] \
+        --orig_seq [string of original sequence] \
+        --model_params [path to model params for EVmutation]
+```
+
+Example for avGFP:
+```
+EVmutation/plmc/bin/plmc -o EVmutation/example/avGFP.model_params -c EVmutation/example/avGFP.txt -f TARGET -le 47.4 -lh 0.01 -m 200 -t 0.2 -g EVmutation/example/avGFP.a2m
+
+```
