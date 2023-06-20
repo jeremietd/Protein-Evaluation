@@ -48,6 +48,10 @@ args = parser.parse_args()
 
 score_structure = args.score_structure
 
+# Checks
+if args.use_tranception:
+  assert args.orig_seq, "Must specify original sequence if using Tranception"
+
 # Check that the required directories exist
 if score_structure:
   pdb_dir = os.path.abspath(args.pdb_dir)

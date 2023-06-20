@@ -20,3 +20,33 @@ def residues_in_pdb(pdb_path):
         pdb_file = pdb.PDBFile.read(pdb_path)
         atoms  = pdb_file.get_structure()
     return get_residue_count(atoms)
+
+def identify_mutation(str1, str2, sep=','):
+    str1vec = list(str1)
+    str2vec = list(str2)
+    iMut = [i for i in range(len(str1vec)) if str1vec[i] != str2vec[i]]
+    return f'{sep}'.join([str1vec[i] + str(i+1) + str2vec[i] for i in iMut])
+
+def extract_mutations(mutation_string, offset=0):
+  """
+  Turns a string containing mutations of the format I100V into a list of tuples with
+  format (100, 'I', 'V') (index, from, to)
+  Parameters
+  ----------
+  mutation_string : str
+      Comma-separated list of one or more mutations (e.g. "K50R,I100V")
+  offset : int, default: 0
+      Offset to be added to the index/position of each mutation
+  Returns
+  -------
+  list of tuples
+      List of tuples of the form (index+offset, from, to)
+  """
+  if mutation_string.lower() not in ["wild", "wt", ""]:
+      mutations = mutation_string.split(",")
+      return list(map(
+          lambda x: (int(x[1:-1]) + offset, x[0], x[-1]),
+          mutations
+      ))
+  else:
+      return []
