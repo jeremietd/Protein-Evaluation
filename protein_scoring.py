@@ -9,6 +9,7 @@ import argparse
 from scoring_metrics import structure_metrics as st_metrics
 from scoring_metrics import single_sequence_metrics as ss_metrics
 from scoring_metrics import alignment_based_metrics as ab_metrics
+from scoring_metrics import fid_score as fid
 
 #Reset calculated metrics (creates a new datastructure to store results, clearing any existing results)
 results = dict()
@@ -120,6 +121,7 @@ with open(target_seqs_file,"w") as fh:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
+fretchet_score = fid.calculate_fid_given_paths(target_files, reference_files, device)
 ab_metrics.ESM_MSA(target_seqs_file, reference_seqs_file, results)
 ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
                               substitution_matrix=sub_matrix, 
@@ -154,6 +156,8 @@ if args.use_tranception:
 
 # Download results
 df = pd.DataFrame.from_dict(results, orient="index")
+df["FID"] = fretchet_score
+
 if score_structure:
   save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "{}.csv".format(args.output_name))
 else :
