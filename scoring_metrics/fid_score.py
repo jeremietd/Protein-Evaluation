@@ -60,7 +60,7 @@ def get_ESM1v_predictions(target_files, device = 'cuda:0'):
             for i, row in df.iterrows():
                 p = row['score']
                 pred_arr.append(p)
-    print(pred_arr)
+    # print(pred_arr)
     return pred_arr
 
 
