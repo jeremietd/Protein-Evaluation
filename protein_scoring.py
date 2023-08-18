@@ -44,6 +44,7 @@ parser.add_argument("--remove_repeat_score_4", action="store_false", help="Wheth
 parser.add_argument("--score_structure", action="store_true", help="Whether to score structural metrics")
 parser.add_argument("--use_tranception", action="store_true", help="Whether to use Tranception")
 parser.add_argument("--use_evmutation", action="store_true", help="Whether to use EVmutation")
+parser.add_argument("--skip_FID", action="store_true", help="Whether to not calculate FID")
 parser.add_argument("--model_params", type=str, help="Model params to use for EVmutation")
 parser.add_argument("--orig_seq", type=str, help="Original sequence to use for Tranception or EVmutation")
 parser.add_argument('--output_name', type=str, required=True, help='Output file name (Just name with no extension!)')
@@ -121,7 +122,11 @@ with open(target_seqs_file,"w") as fh:
     for name, seq in zip(*parse_fasta(target_fasta, return_names=True, clean="unalign")):
       print(f">{name}\n{seq}", file=fh)
 
-fretchet_score = fid.calculate_fid_given_paths(target_files, reference_files, device)
+if not args.skip_FID:
+  fretchet_score = fid.calculate_fid_given_paths(target_files, reference_files, device)
+else:
+  fretchet_score = None
+
 ab_metrics.ESM_MSA(target_seqs_file, reference_seqs_file, results)
 ab_metrics.substitution_score(target_seqs_file, reference_seqs_file,
                               substitution_matrix=sub_matrix, 
