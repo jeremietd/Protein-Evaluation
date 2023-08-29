@@ -87,7 +87,7 @@ assert len(target_files) > 0, f"No target fasta files found in {target_dir}"
 
 if score_structure:
 # Structure metrics
-# ESM-IF, ProteinMPNN, MIF-ST, AlphaFold2 pLDDT
+# ESM-IF, ProteinMPNN, MIF-ST, AlphaFold2 pLDDT, TM-score
   if len(reference_pdb_files) > 1:
     print("Found multiple reference pdb files, using the first one")
     print(f"Found {len(reference_pdb_files)} reference pdb files, using {reference_pdb_files[0]}")
@@ -101,6 +101,7 @@ if score_structure:
 
 # Alignment-based metrics
 # ESM-MSA, Identity to closest reference, Subtitution matix (BLOSUM62 or PFASUM15) score mean of mutated positions
+# FID (ESM-1v), EVmutation
 sub_matrix = args.sub_matrix.upper()
 score_mean = args.remove_sub_score_mean
 identity = args.remove_identity
@@ -139,7 +140,7 @@ if args.use_evmutation:
   ab_metrics.EVmutation(target_files=target_files, orig_seq=args.orig_seq.upper(), results=results, model_params=args.model_params)
 
 # Single sequence metrics
-# ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4
+# ESM-1v, ESM-1v-mask6, CARP-640m-logp, Repeat-1, Repeat-2, Repeat-3, Repeat-4, Tranception
 target_seqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scoring_metrics/tmp/target_seqs.fasta")
 with open(target_seqs_file,"w") as fh:
   for target_fasta in target_files:
