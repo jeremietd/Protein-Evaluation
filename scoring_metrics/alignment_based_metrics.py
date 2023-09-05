@@ -48,7 +48,7 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
     except subprocess.CalledProcessError as e:
       print("ggsearch36 found no hits, stderr and stdout below:")
       print('stderr: ', e.stderr.decode('utf-8'))
-      print('stdout: 'e.stdout.decode('utf-8'))
+      print('stdout: ', e.stdout.decode('utf-8'))
       raise e
     # print(proc.stdout.decode('utf-8'), file=fh)
   df = pd.read_csv(substitution_matrix_file, delimiter=r"\s+")
