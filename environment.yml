@@ -1,4 +1,4 @@
-name: trans_eval
+name: prot_eval # trans_eval
 channels:
   - defaults
   - bioconda

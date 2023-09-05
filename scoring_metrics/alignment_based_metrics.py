@@ -43,9 +43,13 @@ def substitution_score(target_seqs_file, reference_seqs_file, substitution_matri
   substitution_matrix_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'tmp/{substitution_matrix}.mat')
   
   with open(search_results_file,"w") as fh:
-    proc = subprocess.run(['ggsearch36', '-f', str(gap_open), '-g', str(gap_extend), '-s', substitution_matrix_file, '-b,' '1', target_seqs_file, reference_seqs_file], stdout=subprocess.PIPE, check=True)
-    print(proc.stdout.decode('utf-8'), file=fh)
-  
+    try:
+      proc = subprocess.run(['ggsearch36', '-f', str(gap_open), '-g', str(gap_extend), '-s', substitution_matrix_file, '-b,' '1', target_seqs_file, reference_seqs_file], check=True, capture_output=True) # stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    except subprocess.CalledProcessError as e:
+      print(e.stderr.decode('utf-8'))
+      print(e.stdout.decode('utf-8'))
+      raise e
+    # print(proc.stdout.decode('utf-8'), file=fh)
   df = pd.read_csv(substitution_matrix_file, delimiter=r"\s+")
   blosum62 = {}
   for aa1 in df.columns:

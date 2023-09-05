@@ -25,7 +25,7 @@ python  protein_scoring.py \
 
 2. Scoring with all metrics (including structure-based metrics)
 ```
-srun python Tranception-Evaluation/protein_scoring.py \
+python  Tranception-Evaluation/protein_scoring.py \
         --score_structure [flag to include structure-based metrics] \
         --output_name [directory (inside this folder) to store the output csv] \
         --target_dir [directory of target sequences in FASTA format] \
